@@ -64,13 +64,13 @@ gulp.task('lint-test', function() {
 gulp.task('build', ['lint-src', 'clean'], function(done) {
 
 	return gulp.src( ['src/**/*.js'] )
-		.pipe( $.babel({ "presets": ["es2015"] }) )
+		.pipe( $.babel({ "presets": ["es2015"], "plugins": ["syntax-export-extensions"] }) )
 		.pipe( gulp.dest( destinationFolder ) );
 
 });
 
 gulp.task('coverage', ['lint-src', 'lint-test'], function(done) {
-	require('babel-core/register')({ "presets": ["es2015"] });
+	require('babel-core/register')({ "presets": ["es2015"], "plugins": ["syntax-export-extensions"] });
 	gulp.src(['src/*.js'])
 		.pipe($.plumber())
 		.pipe($.istanbul({ instrumenter: isparta.Instrumenter }))
@@ -84,7 +84,10 @@ gulp.task('coverage', ['lint-src', 'lint-test'], function(done) {
 
 // Lint and run our tests
 gulp.task('test', /*['lint-src', 'lint-test'],*/ function() {
-	require('babel-core/register')({ "presets": ["es2015"] });
+	require('babel-core/register')({
+		"presets": ["es2015"],
+		"plugins": ["syntax-export-extensions"]
+	});
 	return test();
 });
 
