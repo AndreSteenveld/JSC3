@@ -2,7 +2,7 @@ import { parents } from "./merge";
 
 function _proxy_( base, scope = this ){
 
-	let proxy =  _proxy_.bind( scope );
+	let proxy =  function( b, s ){ return _proxy_( b || base, s || scope ); };
 
 	Object.setPrototypeOf( proxy, Object.create( base.prototype ) );
 

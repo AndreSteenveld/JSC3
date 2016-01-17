@@ -182,7 +182,7 @@ describe( "Cooparative proxy as function -", ( ) => {
 
 		assert.equal( ( new A( ) ).method( ), "OA" );
 		assert.equal( ( new C( ) ).method( ), "OAC" );
-		assert.equal( ( new D( ) ).method( ), "OAD" );
+		assert.equal( ( new D( ) ).method( ), "OD" );
 
 	});
 
