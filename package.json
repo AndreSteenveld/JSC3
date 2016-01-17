@@ -1,8 +1,8 @@
 {
-  "name": "es6-library-starter",
-  "version": "2.1.0",
-  "description": "Author libraries in ES6 for Node.",
-  "main": "dist/library-dist.js",
+  "name": "",
+  "version": "",
+  "description": "",
+  "main": "",
   "scripts": {
     "test": "gulp",
     "build": "gulp build",
@@ -10,23 +10,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/UWFosterIT/es6-library-starter.git"
+    "url": ""
   },
   "keywords": [
-    "boilerplate",
-    "es6",
-    "node",
-    "starter",
-    "kit",
-    "transpile",
-    "babel"
+
   ],
-  "author": "Marc Miles",
-  "license": "MIT",
+  "author": "Andre Steenveld",
+  "license": "LGPL",
   "bugs": {
-    "url": "https://github.com/UWFosterIT/es6-library-starter.git/issues"
+    "url": ""
   },
-  "homepage": "https://github.com/UWFosterIT/es6-library-starter",
+  "homepage": "",
   "devDependencies": {
     "babel-eslint": "^5.0.0-beta6",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.3.16",
@@ -51,7 +45,9 @@
     "mkdirp": "^0.5.0",
     "mocha": "^2.2.1",
     "sinon": "^1.14.1",
-    "sinon-chai": "^2.7.0"
+    "sinon-chai": "^2.7.0",
+	"babel-plugin-syntax-export-extensions": "^6.3.13",
+    "babel-polyfill": "^6.3.14"
   },
   "to5BoilerplateOptions": {
     "entryFileName": "index",
@@ -62,8 +58,4 @@
       "expect"
     ]
   },
-  "dependencies": {
-    "babel-plugin-syntax-export-extensions": "^6.3.13",
-    "babel-polyfill": "^6.3.14"
-  }
 }

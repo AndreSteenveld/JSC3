@@ -92,4 +92,24 @@ describe( "When inheriting using C3 -", ( ) => {
 
 	});
 
+	it( "mixing up the inheritance with classic and C3", ( ) => {
+
+		class A { method( ){ result += "A"; } }
+		class B extends A { method( ){ super.method( ); result += "B"; } }
+		class C extends A { method( ){ super.method( ); result += "C"; } }
+
+		class D extends C3( B, C ){ method( ){ super.method( ); result += "D"; } }
+
+		class E extends D { method( ){ super.method( ); result += "E"; } }
+
+		let result   = "",
+			instance = new E( );
+
+		instance.method( );
+
+		assert.equal( result, "ABDE" );
+
+
+	});
+
 });

@@ -15,7 +15,7 @@ describe( "Node { ... } - ", ( ) => {
 
 		let result = "";
 
-		let a = new Node( Base, A, [ ] );
+		let a = new Node( Base, A );
 
 		let instance = new a( );
 
@@ -27,20 +27,6 @@ describe( "Node { ... } - ", ( ) => {
 
 		let dummy = instance.property;
 		assert.equal( result, "getter" );
-
-	});
-
-	it( "should contain a list of bases", ( ) => {
-
-		class A { }
-		class B extends A { }
-
-		let node = new Node( Base, B, [ A, Object.__proto__ ] );
-
-		let same_bases = [ A, Object.__proto__ ].every( ( clazz, index, array ) => node.bases[ index ] === array[ index ] );
-
-		assert( node.bases, "There is no bases array on the node" );
-		assert( same_bases, "The bases are not equal" );
 
 	});
 
@@ -62,6 +48,20 @@ describe( "Tail { ... } - ", ( ) => {
 
 		assert.isDefined( instance.method_on_a );
 		assert.isDefined( instance.method_on_b );
+
+	});
+
+	it( "should contain a list of bases", ( ) => {
+
+		class A { }
+		class B extends A { }
+
+		let node = new Tail( B );
+
+		let same_bases = [ B, A, Object.__proto__ ].every( ( clazz, index, array ) => node.bases[ index ] === array[ index ] );
+
+		assert( node.bases, "There is no bases array on the node" );
+		assert( same_bases, "The bases are not equal" );
 
 	});
 

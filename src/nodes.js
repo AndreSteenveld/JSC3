@@ -1,14 +1,15 @@
 import merge from "./merge";
 import Type from "./Type";
+import proxy from "./proxy";
 
 export class Node extends Type {
 
-	constructor( parent, base, bases ){
+	constructor( parent, base ){
 
 		let type = { };
 		let node = class extends super({ type, extend : parent }) {
 
-			static get bases( ){ return Array.from( bases ); }
+			get super( ){ return proxy( parent ); }
 
 		};
 
@@ -41,7 +42,9 @@ export class Node extends Type {
 export class Base extends Node {
 
 	constructor( ){
-		return super( Base, new Function( ), [ ] );
+
+		return super( Base, new Function( ) );
+
 	}
 
 }
@@ -52,14 +55,17 @@ export class Tail extends Node {
 
 		let bases = merge( ...Array.from( supers ) );
 
-		let mix = bases.reduceRight(
-			( node, mixin, index, array ) => new Node( node, mixin, array.slice( index ) ),
-			                                 new Base( )
+		let mixin = bases.reduceRight(
+			( node, mixin ) => new Node( node, mixin ),
+			                   new Base( )
 		);
 
-		return class C3 extends super( supers[ 0 ], mix, bases ) {
+		return class C3 extends super( supers[ 0 ], mixin ) {
 
 			static get supers( ){ return Array.from( supers ); }
+			static get bases( ){ return Array.from( bases ); }
+
+			get super( ){ return proxy( mixin ); }
 
 			constructor( ){
 

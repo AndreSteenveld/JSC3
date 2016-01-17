@@ -4,8 +4,6 @@ describe( "The cooprative constructor -", ( ) => {
 
 	it( "for a single class", ( ) => {
 
-		debugger;
-
 		class A extends C3( ) { new( ){ result += "A"; } }
 
 		let result   = "";
@@ -68,7 +66,7 @@ describe( "The cooprative constructor -", ( ) => {
 
 	});
 
-	it( "using regula super should walk up the prototype chain", ( ) => {
+	it( "using regular super should walk up the prototype chain", ( ) => {
 
 		class A { new( ){ result += "A"; } }
 		class B extends A { new( ){ super.new( ); result += "B"; } }
@@ -79,6 +77,24 @@ describe( "The cooprative constructor -", ( ) => {
 			instance = new D( );
 
 		assert.equal( result, "ABD" );
+
+	});
+
+	it( "mixing up the inheritance with classic and C3", ( ) => {
+
+		class A { new( ){ result += "A"; } }
+		class B extends A { new( ){ super.new( ); result += "B"; } }
+		class C extends A { new( ){ super.new( ); result += "C"; } }
+
+		class D extends C3( B, C ){ new( ){ super.new( ); result += "D"; } }
+
+		class E extends D { new( ){ super.new( ); result += "E"; } }
+
+		let result   = "",
+			instance = new E( );
+
+		assert.equal( result, "ABDE" );
+
 
 	});
 

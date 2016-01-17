@@ -9,7 +9,6 @@ export function parents( clazz ){
 	if( parent == null || typeof parent !== "function" )
 		return [ ];
 
-
 	return [ parent ].concat( parents( parent ) );
 
 }
