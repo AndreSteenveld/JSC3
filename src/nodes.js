@@ -17,22 +17,62 @@ export class Node extends Type {
 
 		// In the case of the Object prototype there is none
 		if( base.prototype !== undefined )
-			self.mixin( node.prototype, base.prototype );
+			self.mixin( node.prototype, base.prototype, parent );
 
 		return node;
 
 	}
 
-	mixin( target, source ){
+	mixin( target, base, parent ){
+
+		//
+		// Mixing in the methods from the base type we want to clone. To make sure that our
+		// C3 chain will keep working we will have to fill in the "empty" methods from the
+		// parent as well.
+		//
 
 		let descriptors = Object.create( null ),
-			keys = [ ]
-				.concat( Object.getOwnPropertyNames( source ) )
-				.concat( Object.getOwnPropertySymbols( source ) );
 
-		for( let key of keys )
+			base_keys = [ ]
+				.concat( Object.getOwnPropertyNames( base ) )
+				.concat( Object.getOwnPropertySymbols( base ) ),
+
+			parent_keys = [ ]
+				.concat( Object.getOwnPropertyNames( parent ? parent.prototype : Object.create( null ) ) )
+				.concat( Object.getOwnPropertySymbols( parent ? parent.prototype : Object.create( null ) ) );
+
+		//
+		// Mixin in the methods from the base
+		//
+		for( let key of base_keys )
 			if( key !== "constructor" )
-				descriptors[ key ] = Object.getOwnPropertyDescriptor( source, key );
+				descriptors[ key ] = Object.getOwnPropertyDescriptor( base, key );
+
+		//
+		// If the base defines a method we don't need to override it otherwise stub the
+		// method with a proper call to the class.
+		//
+		for( let key of parent_keys.filter( key => !base_keys.includes( key ) ) ) {
+
+			if( key === "constructor" || key === "super" ) continue;
+
+			let descriptor = Object.getOwnPropertyDescriptor( parent.prototype, key );
+
+			if( typeof descriptor.value === "function" ) {
+
+				descriptor.value = function( ...args ){ return proxy( parent )[ key ]( ...args ); };
+				descriptors[ key ] = descriptor;
+
+			} else if( typeof descriptor.get === "function" || typeof descriptor.set === "function" ){
+
+				descriptor.get && ( descriptor.get = function( ){ return proxy( parent )[ key ]; } );
+				descriptor.set && ( descriptor.set = function( value ){ return ( proxy( parent )[ key ] = value ); } );
+
+				descriptors[ key ] = descriptor;
+
+			}
+
+		}
 
 		Object.defineProperties( target, descriptors );
 	}

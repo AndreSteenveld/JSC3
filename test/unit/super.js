@@ -65,8 +65,6 @@ describe( "Cooparative proxy as default wrapped -", ( ) => {
 
 	it( "should resolve a line with hole", ( ) => {
 
-		debugger;
-
 		class A extends C3( ) {
 			method( ){ return "A"; }
 		}
