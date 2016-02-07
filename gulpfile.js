@@ -3,6 +3,8 @@ var $ = require('gulp-load-plugins')({
 	replaceString: /^gulp(-|\.)([0-9]+)?/
 });
 
+var babel_config = JSON.parse( require( "fs" ).readFileSync( "./.babelrc" ) );
+
 const fs      = require('fs');
 const del     = require('del');
 const path    = require('path');
@@ -10,11 +12,11 @@ const mkdirp  = require('mkdirp');
 const isparta = require('isparta');
 //const esperanto	 = require('esperanto');
 
-const manifest					= require('./package.json');
-const config						= manifest.to5BoilerplateOptions;
-const mainFile					= manifest.main;
-const destinationFolder = path.dirname(mainFile);
-const exportFileName		= path.basename(mainFile, path.extname(mainFile));
+const manifest          = require('./package.json');
+const config            = manifest.to5BoilerplateOptions;
+const mainFile          = manifest.main;
+const destinationFolder = "./build"; // path.dirname(mainFile + "/build");
+const exportFileName    = path.basename(mainFile, path.extname(mainFile));
 
 function test() {
 	return gulp.src(['test/setup/node.js', 'test/unit/**/*.js'], {read: false})
@@ -61,16 +63,18 @@ gulp.task('lint-test', function() {
 });
 
 // Build two versions of the library
-gulp.task('build', ['lint-src', 'clean'], function(done) {
+gulp.task('build', /*['lint-src', 'clean'],*/ function(done) {
 
 	return gulp.src( ['src/**/*.js'] )
-		.pipe( $.babel({ "presets": ["es2015"], "plugins": ["syntax-export-extensions"] }) )
+		//.pipe( $.babel({ "presets": ["es2015"], "plugins": ["syntax-export-extensions"] }) )
+		.pipe( $.babel( babel_config ) )
 		.pipe( gulp.dest( destinationFolder ) );
 
 });
 
 gulp.task('coverage', ['lint-src', 'lint-test'], function(done) {
-	require('babel-core/register')({ "presets": ["es2015"], "plugins": ["syntax-export-extensions"] });
+	//require('babel-core/register')({ "presets": ["es2015"], "plugins": ["syntax-export-extensions"] });
+	require( "babel-core/register" )( babel_config );
 	gulp.src(['src/*.js'])
 		.pipe($.plumber())
 		.pipe($.istanbul({ instrumenter: isparta.Instrumenter }))
@@ -84,10 +88,8 @@ gulp.task('coverage', ['lint-src', 'lint-test'], function(done) {
 
 // Lint and run our tests
 gulp.task('test', /*['lint-src', 'lint-test'],*/ function() {
-	require('babel-core/register')({
-		"presets": ["es2015"],
-		"plugins": ["syntax-export-extensions"]
-	});
+	//require('babel-core/register')({ "presets": ["es2015"], "plugins": ["syntax-export-extensions"] });
+	//require( "babel-core/register" )( babel_config );
 	return test();
 });
 

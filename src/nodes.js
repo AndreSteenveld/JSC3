@@ -4,12 +4,43 @@ import proxy from "./proxy";
 
 export class Node extends Type {
 
+	// keys = [ ],
+
 	constructor( parent, base ){
 
-		let type = { };
-		let node = class extends super({ type, extend : parent }) {
+		let type = { },
+			node = class extends super({ type, extend : parent }) {
 
-			get super( ){ return proxy( parent ); }
+			get super( ){
+
+				let proxy = super.super,
+					base_keys = [ ]
+						.concat( Object.getOwnPropertyNames( base.prototype ) )
+						.concat( Object.getOwnPropertySymbols( base.prototype ) );
+
+				for( let key of base_keys ){
+
+					if( key === "constructor" || key === "super" ) continue;
+
+					let descriptor = Object.getOwnPropertyDescriptor( base, key );
+
+					if( typeof descriptor.value === "function" ) {
+
+						descriptor.value = super[ key ].bind( this );
+
+					} else if( typeof descriptor.get === "function" || typeof descriptor.set === "function" ){
+
+						descriptor.get && ( descriptor.get = descriptor.get.bind( this ) );
+						descriptor.set && ( descriptor.set = descriptor.set.bind( this ) );
+
+					}
+
+					Object.defineProperty( proxy, key, descriptor )
+				}
+
+				return proxy;
+
+			}
 
 		};
 
@@ -52,27 +83,27 @@ export class Node extends Type {
 		// If the base defines a method we don't need to override it otherwise stub the
 		// method with a proper call to the class.
 		//
-		for( let key of parent_keys.filter( key => !base_keys.includes( key ) ) ) {
-
-			if( key === "constructor" || key === "super" ) continue;
-
-			let descriptor = Object.getOwnPropertyDescriptor( parent.prototype, key );
-
-			if( typeof descriptor.value === "function" ) {
-
-				descriptor.value = function( ...args ){ return proxy( parent )[ key ]( ...args ); };
-				descriptors[ key ] = descriptor;
-
-			} else if( typeof descriptor.get === "function" || typeof descriptor.set === "function" ){
-
-				descriptor.get && ( descriptor.get = function( ){ return proxy( parent )[ key ]; } );
-				descriptor.set && ( descriptor.set = function( value ){ return ( proxy( parent )[ key ] = value ); } );
-
-				descriptors[ key ] = descriptor;
-
-			}
-
-		}
+		// for( let key of parent_keys.filter( key => !base_keys.includes( key ) ) ) {
+		//
+		// 	if( key === "constructor" || key === "super" ) continue;
+		//
+		// 	let descriptor = Object.getOwnPropertyDescriptor( parent.prototype, key );
+		//
+		// 	if( typeof descriptor.value === "function" ) {
+		//
+		// 		descriptor.value = function( ...args ){ return proxy( parent )[ key ]( ...args ); };
+		// 		descriptors[ key ] = descriptor;
+		//
+		// 	} else if( typeof descriptor.get === "function" || typeof descriptor.set === "function" ){
+		//
+		// 		descriptor.get && ( descriptor.get = function( ){ return proxy( parent )[ key ]; } );
+		// 		descriptor.set && ( descriptor.set = function( value ){ return ( proxy( parent )[ key ] = value ); } );
+		//
+		// 		descriptors[ key ] = descriptor;
+		//
+		// 	}
+		//
+		// }
 
 		Object.defineProperties( target, descriptors );
 	}
@@ -83,7 +114,19 @@ export class Base extends Node {
 
 	constructor( ){
 
-		return super( Base, new Function( ) );
+		return class extends super( Base, new Function( ) ){
+
+			get super( ){
+
+				let proxy = function( ){ };
+
+				Object.setPrototypeOf( proxy, Object.create( null ) );
+
+				return proxy;
+
+			}
+
+		};
 
 	}
 
@@ -105,7 +148,7 @@ export class Tail extends Node {
 			static get supers( ){ return Array.from( supers ); }
 			static get bases( ){ return Array.from( bases ); }
 
-			get super( ){ return proxy( mixin ); }
+			get super( ){ return mixin.super; }
 
 			constructor( ){
 
