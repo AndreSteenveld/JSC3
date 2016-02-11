@@ -2,6 +2,16 @@ import merge from "./merge";
 import Type from "./Type";
 import proxy from "./proxy";
 
+function descriptors( target ){
+
+	let keys = [ ]
+		.concat( Object.getOwnPropertyNames( target ) )
+		.concat( Object.getOwnPropertySymbols( target ) );
+
+	return keys.map( ( key ) => [ key, Object.getOwnPropertyDescriptor( target, key ) ] );
+
+}
+
 export class Node extends Type {
 
 	constructor( parent, base ){
@@ -31,50 +41,48 @@ export class Node extends Type {
 		// parent as well.
 		//
 
-		let descriptors = Object.create( null ),
+		let mixers       = Object.create( null ),
+			base_pairs   = descriptors( base ),
+			parent_pairs = descriptors( parent ? parent.prototype : Object.create( null ) ),
 
-			base_keys = [ ]
-				.concat( Object.getOwnPropertyNames( base ) )
-				.concat( Object.getOwnPropertySymbols( base ) ),
-
-			parent_keys = [ ]
-				.concat( Object.getOwnPropertyNames( parent ? parent.prototype : Object.create( null ) ) )
-				.concat( Object.getOwnPropertySymbols( parent ? parent.prototype : Object.create( null ) ) );
+			base_keys = base_pairs.map( ([ key ]) => key );
 
 		//
 		// Mixin in the methods from the base
 		//
-		for( let key of base_keys )
-			if( key !== "constructor" )
-				descriptors[ key ] = Object.getOwnPropertyDescriptor( base, key );
+		for( let [ key, descriptor ] of base_pairs ){
+
+			if( key === "constructor" ) continue;
+
+			mixers[ key ] = descriptor;
+
+		}
 
 		//
 		// If the base defines a method we don't need to override it otherwise stub the
 		// method with a proper call to the class.
 		//
-		for( let key of parent_keys.filter( key => !base_keys.includes( key ) ) ) {
+		for( let [ key, descriptor ] of parent_pairs ){
 
-			if( key === "constructor" || key === "super" ) continue;
-
-			let descriptor = Object.getOwnPropertyDescriptor( parent.prototype, key );
+			if( key === "constructor" || key === "super" || base_keys.includes( key ) ) continue;
 
 			if( typeof descriptor.value === "function" ) {
 
 				descriptor.value = function( ...args ){ return proxy( parent )[ key ]( ...args ); };
-				descriptors[ key ] = descriptor;
+				mixers[ key ] = descriptor;
 
 			} else if( typeof descriptor.get === "function" || typeof descriptor.set === "function" ){
 
 				descriptor.get && ( descriptor.get = function( ){ return proxy( parent )[ key ]; } );
 				descriptor.set && ( descriptor.set = function( value ){ return ( proxy( parent )[ key ] = value ); } );
 
-				descriptors[ key ] = descriptor;
+				mixers[ key ] = descriptor;
 
 			}
 
 		}
 
-		Object.defineProperties( target, descriptors );
+		Object.defineProperties( target, mixers );
 	}
 
 }
