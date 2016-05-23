@@ -1,0 +1,9 @@
+{
+	"presets": [ "es2015" ],
+	"plugins": [
+		"transform-class-constructor-call",
+		"transform-class-properties",
+		"transform-decorators",
+		"transform-export-extensions"
+	]
+}
