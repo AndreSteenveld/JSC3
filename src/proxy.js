@@ -1,7 +1,5 @@
 import { empty, descriptors, to_object } from "./utilities";
 
-const overrides = ".overrides";
-
 function create_proxy_for_method([ key, descriptor ]){
 
 	return [ key, Object.assign( empty( ), descriptor, { value : descriptor.value.bind( this ) } ) ];
@@ -10,7 +8,8 @@ function create_proxy_for_method([ key, descriptor ]){
 
 function create_proxy_for_property([ key, descriptor ]){
 
-	let properties_descriptor = Object.assign( empty( ), descriptor ),
+	const
+		properties_descriptor = Object.assign( empty( ), descriptor ),
 		{ get, set } = properties_descriptor;
 
 	get && ( properties_descriptor.get = get.bind( this ) );
@@ -33,7 +32,7 @@ function create_proxy([ key, descriptor ]){
 
 		return create_proxy_for_property.call( this, [ key, descriptor ] );
 
-	} else {
+	} else { // eslint-disable-line no-else-return, This last return was added in an else block to make it consistent with all the other returns
 
 		return [ key, descriptor ];
 
@@ -67,14 +66,14 @@ function proxy_object( bases, scope, target ){
 
 export function proxy( bases, scope ){
 
-	const wrapper = function( target ){
+	const proxy_wrapper = function proxy_wrapper( target ){
 
 		return proxy_object( bases, scope, target );
 
-	}
+	};
 
-	Object.setPrototypeOf( wrapper, empty( ) );
+	Object.setPrototypeOf( proxy_wrapper, empty( ) );
 
-	return wrapper;
+	return proxy_wrapper;
 
 }
