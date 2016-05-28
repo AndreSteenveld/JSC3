@@ -40,7 +40,12 @@ function create_proxy([ key, descriptor ]){
 
 }
 
-function proxy_object( bases, scope, target ){
+function proxy_object( bases, scope, origin, target ){
+
+	const index_of_origin = bases.indexOf( origin );
+
+	if( void 0 === target )
+		target = bases[ index_of_origin + 1 ];
 
 	if( !bases.includes( target ) )
 		throw new Error( "List of base classes doesn't contain target" );
@@ -66,9 +71,9 @@ function proxy_object( bases, scope, target ){
 
 export function proxy( bases, scope ){
 
-	const proxy_wrapper = function proxy_wrapper( target ){
+	const proxy_wrapper = function proxy_wrapper( origin, target ){
 
-		return proxy_object( bases, scope, target );
+		return proxy_object( bases, scope, origin, target );
 
 	};
 

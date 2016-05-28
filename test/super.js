@@ -106,12 +106,12 @@ describe.skip( "Cooparative proxy as default wrapped -", ( ) => {
 
 describe( "Cooparative proxy as function -", ( ) => {
 
-	it.skip( "should resolve a full line with methods without specifying", ( ) => {
+	it( "should resolve a full line with methods without specifying", ( ) => {
 
 		class A extends C3( )   { method( ){ return "A"; } }
-		class B extends C3( A ) { method( ){ return "B" + this.super( ).method( ); } }
-		class C extends C3( B ) { method( ){ return "C" + this.super( ).method( ); } }
-		class D extends C3( C ) { method( ){ return "D" + this.super( ).method( ); } }
+		class B extends C3( A ) { method( ){ return "B" + this.super( B ).method( ); } }
+		class C extends C3( B ) { method( ){ return "C" + this.super( C ).method( ); } }
+		class D extends C3( C ) { method( ){ return "D" + this.super( D ).method( ); } }
 
 		assert.equal( ( new D( ) ).method( ), "DCBA" );
 
@@ -127,7 +127,7 @@ describe( "Cooparative proxy as function -", ( ) => {
 
 		class B extends C3( A ){
 			method( ){
-				return "B" + this.super( A ).method( );
+				return "B" + this.super( B ).method( );
 			}
 		}
 
@@ -149,19 +149,19 @@ describe( "Cooparative proxy as function -", ( ) => {
 
 		class B extends C3( A ) {
 			method( ){
-				return "B" + this.super( A ).method( );
+				return "B" + this.super( B, A ).method( );
 			}
 		}
 
 		class C extends C3( B ) {
 			method( ){
-				return "C" + this.super( B ).method( );
+				return "C" + this.super( C, B ).method( );
 			}
 		}
 
 		class D extends C3( C ) {
 			method( ){
-				return "D" + this.super( C ).method( );
+				return "D" + this.super( D, C ).method( );
 			}
 		}
 
@@ -176,9 +176,9 @@ describe( "Cooparative proxy as function -", ( ) => {
 	it( "should resolve a line with hole with specifying", ( ) => {
 
 		class A extends C3( )   { method( ){ return "A"; } }
-		class B extends C3( A ) { method( ){ return "B" + this.super( A ).method( ); } }
+		class B extends C3( A ) { method( ){ return "B" + this.super( B ).method( ); } }
 		class C extends C3( B ) {  }
-		class D extends C3( C ) { method( ){ return "D" + this.super( B ).method( ); } }
+		class D extends C3( C ) { method( ){ return "D" + this.super( D ).method( ); } }
 
 		assert.equal( ( new D( ) ).method( ), "DBA" );
 
@@ -193,9 +193,9 @@ describe( "Cooparative proxy as function -", ( ) => {
 		// stubbed functions from mixing in.
 		//
 		class A extends C3( )   { method( ){ return "A"; } }
-		class B extends C3( A ) { method( ){ return "B" + this.super( A ).method( ); } }
+		class B extends C3( A ) { method( ){ return "B" + this.super( B ).method( ); } }
 		class C extends C3( B ) {  }
-		class D extends C3( C ) { method( ){ return "D" + this.super( C ).method( ); } }
+		class D extends C3( C ) { method( ){ return "D" + this.super( D, B ).method( ); } }
 
 		assert.equal( ( new D( ) ).method( ), "DBA" );
 
@@ -206,8 +206,8 @@ describe( "Cooparative proxy as function -", ( ) => {
 		class O                 { method( ){ return "O"; } }
 		class A extends O       { method( ){ return super.method( ) + "A"; } }
 		class B extends C3( A ) { method( ){ throw new Error( "B#method was invoked" ); } }
-		class C extends C3( B ) { method( ){ return this.super( A ).method( ) + "C"; } }
-		class D extends C3( C ) { method( ){ return this.super( O ).method( ) + "D"; } }
+		class C extends C3( B ) { method( ){ return this.super( C, A ).method( ) + "C"; } }
+		class D extends C3( C ) { method( ){ return this.super( D, O ).method( ) + "D"; } }
 
 		assert.equal( ( new A( ) ).method( ), "OA" );
 		assert.equal( ( new C( ) ).method( ), "OAC" );
@@ -237,7 +237,7 @@ describe( "Cooparative proxy sanity cases -", ( ) => {
 			method( ){
 				assert.equal( this.property, "value", "The property was not set at all" );
 				assert.equal( super.method( ), "value", "Calling method on super has failed resolving the property" );
-				assert.equal( this.super( A ).method( ), "value", "Calling the cooparative proxy method has faild in resolving the property" );
+				assert.equal( this.super( B ).method( ), "value", "Calling the cooparative proxy method has faild in resolving the property" );
 			}
 
 		}
@@ -269,7 +269,7 @@ describe( "Cooparative proxy sanity cases -", ( ) => {
 
 			method( ){
 				this.property = "value";
-				this.super( A ).method( );
+				this.super( B ).method( );
 
 				assert.equal( this.property, "other value" );
 			}
@@ -296,7 +296,7 @@ describe( "Cooparative proxy sanity cases -", ( ) => {
 
 			method( ){
 				assert( this === super.method( ), "Classic super this is not the same" );
-				assert( this === this.super( A ).method( ), "Explicit proxy is not the same" );
+				assert( this === this.super( B ).method( ), "Explicit proxy is not the same" );
 				//assert( this === this.super.method( ), "Proxy super is not the same" );
 			}
 
