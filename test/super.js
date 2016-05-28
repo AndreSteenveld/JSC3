@@ -173,7 +173,7 @@ describe( "Cooparative proxy as function -", ( ) => {
 
 	});
 
-	it( "should resolve a line with hole with specifying", ( ) => {
+	it( "should resolve a line with hole without specifying", ( ) => {
 
 		class A extends C3( )   { method( ){ return "A"; } }
 		class B extends C3( A ) { method( ){ return "B" + this.super( B ).method( ); } }
@@ -195,7 +195,7 @@ describe( "Cooparative proxy as function -", ( ) => {
 		class A extends C3( )   { method( ){ return "A"; } }
 		class B extends C3( A ) { method( ){ return "B" + this.super( B ).method( ); } }
 		class C extends C3( B ) {  }
-		class D extends C3( C ) { method( ){ return "D" + this.super( D, B ).method( ); } }
+		class D extends C3( C ) { method( ){ return "D" + this.super( D, C ).method( ); } }
 
 		assert.equal( ( new D( ) ).method( ), "DBA" );
 
@@ -214,6 +214,44 @@ describe( "Cooparative proxy as function -", ( ) => {
 		assert.equal( ( new D( ) ).method( ), "OD" );
 
 	});
+
+	it( "should resolve getters the same way as methods", ( ) => {
+
+		class O                 { get getter( ){ return "O"; } }
+		class A extends O       { get getter( ){ return super.getter + "A"; } }
+		class B extends C3( A ) { get getter( ){ throw new Error( "B#getter was invoked" ); } }
+		class C extends C3( B ) { get getter( ){ return this.super( C, A ).getter + "C"; } }
+		class D extends C3( C ) { get getter( ){ return this.super( D, O ).getter + "D"; } }
+
+		assert.equal( ( new A( ) ).getter, "OA" );
+		assert.equal( ( new C( ) ).getter, "OAC" );
+		assert.equal( ( new D( ) ).getter, "OD" );
+
+	});
+
+	it( "should resolve setters the same way as methods", ( ) => {
+
+		class O                 { set setter( v ){ this.value = "O" + v; } }
+		class A extends O       { set setter( v ){ super.setter = "A" + v; } }
+		class B extends C3( A ) { set setter( v ){ throw new Error( "B#method was invoked" ); } }
+		class C extends C3( B ) { set setter( v ){ this.super( C, A ).setter = "C" + v; } }
+		class D extends C3( C ) { set setter( v ){ this.super( D, O ).setter = "D" + v; } }
+
+		const
+			a = new A( ),
+			c = new C( ),
+			d = new D( );
+
+		a.setter = "_";
+		c.setter = "_";
+		d.setter = "_";
+
+		assert.equal( a.value, "OA_" );
+		assert.equal( c.value, "OAC_" );
+		assert.equal( d.value, "OD_" );
+
+	});
+
 
 });
 
