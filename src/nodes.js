@@ -12,7 +12,7 @@ export function Node( extend = Base, base, bases ){
 		static_overrides = ( scope ) => proxy( bases, scope ),
 		instance_overrides = ( scope ) => proxy( bases, scope );
 
-	const type = class extends Type({ extend }) {
+	const type = class extends Type({ extend, constructor: extend.prototype.constructor }) {
 
 		static get super( ){ return static_overrides( this ); }
 		get super( ){ return instance_overrides( this ); }
@@ -45,7 +45,8 @@ export class Tail extends Node {
 
 				super( ...Array.from( args ) );
 
-				typeof this.new === "function" && this.new( ...Array.from( args ) );
+				if( !bases.some( ( c ) => "bases" in c ) ) 
+					typeof this.new === "function" && this.new( ...Array.from( args ) );
 
 			}
 
