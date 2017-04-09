@@ -101,3 +101,26 @@ describe( "The cooprative constructor -", ( ) => {
 
 
 });
+
+describe( "The default constructor -", ( ) => {
+
+	it( "Should call the default constructors", ( ) => {
+
+		class A {
+			constructor( ){ this.property = "A"; }
+		}
+
+		class B extends C3( A ){
+			constructor( ){
+				super( );
+				this.property += "B";
+			}
+		}
+
+		const instance = new B( );
+
+		assert.equal( instance.property, "AB", "Constructors were not called" );
+
+	});
+
+});

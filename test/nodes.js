@@ -3,7 +3,7 @@ import { Base, Node, Tail } from "../src/nodes";
 
 describe( "Base { ... } - ", ( ) => {
 
-	it( "should have a super getter", ( ) => {
+	it.skip( "should have a super getter", ( ) => {
 
 		const instance = new Base( );
 
