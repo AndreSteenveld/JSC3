@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import C3 from "../";
+import C3 from "../src";
 
 describe( "When inheriting using C3 -", ( ) => {
 

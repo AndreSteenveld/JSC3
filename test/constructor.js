@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import C3 from "../";
+import C3 from "../src";
 
 describe( "The cooprative constructor -", ( ) => {
 
